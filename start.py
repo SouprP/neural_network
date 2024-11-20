@@ -10,19 +10,39 @@ import argparse
 
 from core.neural_network import NeuralNetwork
 
+
+# PARAMS
+INPUT_SIZE = 784 # 28x28 pixels
+HIDDEN_SIZE = 64 
+OUTPUT_SIZE = 10 # digits 0 to 9
+ALPHA = 0.01
+ITERATIONS = 2500
+
+# TESTING PARAMS
+TEST_BATCH = 20
+DEBUG = True
+
 # from keras.api.datasets import mnist
 
-def test_prediction(index, W1, b1, W2, b2, x_train, y_train, network):
-    current_image = x_train[:, index, None]
-    prediction = network.make_predictions(x_train[:, index, None], W1, b1, W2, b2)
-    label = y_train[index]
-    print("Prediction: ", prediction)
-    print("Label: ", label)
-    
-    current_image = current_image.reshape((28, 28)) * 255
+def test_prediction(x_test, y_test, network : NeuralNetwork):
+    index = np.random.randint(0, x_test.shape[1] - 1)
+
+    image = x_test[:, index, None]
+    label = y_test[index]
+
+    prediction = network.predict(image)
+
+    print(f"Prediction: {prediction[0]}")
+    print(f"Actual Label: {label}")
+
+    # Reshape and display the image (e.g., 28x28 for MNIST)
+    image_size = int(x_train.shape[0] ** 0.5)  # Calculate square size, e.g., 28x28
+    reshaped_image = image.reshape((image_size, image_size)) * 255  # Scale for display
     plt.gray()
-    plt.imshow(current_image, interpolation='nearest')
+    plt.imshow(reshaped_image, interpolation='nearest')
+    plt.title(f"Prediction: {prediction[0]} | Label: {label}")
     plt.show()
+
 
 if __name__ == "__main__":
     # use args in the future for choosing diffrent things, example - activation functions
@@ -46,11 +66,16 @@ if __name__ == "__main__":
     y_train = y_train.T
     y_test = y_test.T
 
-    network = NeuralNetwork()
-    W1, b1, W2, b2 = network.gradient_descent(x_train, y_train, 0.10, 500)
+    network = NeuralNetwork(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE, filename="mnist_2.5k_0.01" ,debug=DEBUG, iters_check=10)
+    network.train(x_train, y_train, ALPHA, ITERATIONS)
+    network.save_data()
+    network.plot()
 
-    test_prediction(np.random.randint(0, 60000) , W1, b1, W2, b2, x_train, y_train, network)
-    test_prediction(np.random.randint(0, 60000), W1, b1, W2, b2, x_train, y_train, network)
-    test_prediction(np.random.randint(0, 60000), W1, b1, W2, b2, x_train, y_train, network)
-    test_prediction(np.random.randint(0, 60000), W1, b1, W2, b2, x_train, y_train, network)
+    if DEBUG:
+        predictions = network.predict(x_test)
+        accuracy = network.get_accuracy(predictions, y_test)
+        print(f"Training end accuracy: {accuracy:.4f}")
+
+        for i in range(TEST_BATCH):
+            test_prediction(x_test, y_test, network)
 
