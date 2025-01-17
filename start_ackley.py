@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
-from core.neural_network_ackley import NeuralNetwork
+from core.neural_network_ackley import NeuralNetworkAckley
 from openpyxl import Workbook
 
 # Parametry sieci
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     y_test = ackley_function(x_test[0, :], x_test[1, :]).reshape(1, -1)
 
 
-    network = NeuralNetwork(INPUT_SIZE, HIDDEN_SIZE1, HIDDEN_SIZE2, OUTPUT_SIZE, activation_function=args.activation, filename="ackley_relu_2k_0.01", debug=DEBUG, iters_check=ITERS_CHECK)
+    network = NeuralNetworkAckley(INPUT_SIZE, HIDDEN_SIZE1, HIDDEN_SIZE2, OUTPUT_SIZE, activation_function=args.activation, filename="ackley_relu_2k_0.01", debug=DEBUG, iters_check=ITERS_CHECK)
     network.train(x_train, y_train, alpha=ALPHA, iterations=ITERATIONS, sheet=sheet)
 
     grid, X, Y = generate_grid(-2, 2, 0.01)

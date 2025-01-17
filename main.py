@@ -233,19 +233,21 @@ if __name__ == "__main__":
     #                 iter += 1
 
 
-    s_mnist = multiprocessing.Process(target=process_mnist_sigmoid)
-    r_ackley = multiprocessing.Process(target=process_relu_ackley)
-    s_ackley = multiprocessing.Process(target=process_sigmoid_ackley)
+    # s_mnist = multiprocessing.Process(target=process_mnist_sigmoid)
+    # r_ackley = multiprocessing.Process(target=process_relu_ackley)
+    # s_ackley = multiprocessing.Process(target=process_sigmoid_ackley)
 
-    s_mnist.start()
-    r_ackley.start()
-    s_ackley.start()
+    # s_mnist.start()
+    # r_ackley.start()
+    # s_ackley.start()
 
-    s_mnist.join()
-    r_ackley.join()
-    s_ackley.join()
+    # s_mnist.join()
+    # r_ackley.join()
+    # s_ackley.join()
 
-    print("ENDED")
+    process_relu_ackley()
+
+    # print("ENDED")
 
     # ACKLEY DATA
     # x_train = np.random.uniform(-2, 2, (INPUT_SIZE, 20000))

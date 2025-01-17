@@ -1,9 +1,9 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 
-class NeuralNetwork:
+class NeuralNetworkAckley:
     def __init__(self, input_size: int, hidden_size1: int, hidden_size2: int, output_size: int,
                  activation_function='relu', filename=None, debug=False, iters_check=100):
         self.input_size = input_size
@@ -13,7 +13,11 @@ class NeuralNetwork:
         self.activation_function = activation_function
         self.filename = filename
         self.debug = debug
+
+
         self.iters_check = iters_check
+        self.start_iteration = 0
+        self.current_iteration = 0
 
         self.alpha = None
         self.iterations = None
@@ -46,14 +50,23 @@ class NeuralNetwork:
         self.b2 = data['b2']
         self.W3 = data['W3']
         self.b3 = data['b3']
+        self.start_iteration = data['last_iteration']
+
+        # print(self.start_iteration)
+
         if self.debug:
             print(f"Model loaded from ./data/{self.filename}.npz")
 
     def save_data(self):
-        if self.filename:
-            np.savez(f"./data/{self.filename}", W1=self.W1, b1=self.b1, W2=self.W2, b2=self.b2, W3=self.W3, b3=self.b3)
-            if self.debug:
-                print(f"Model saved to ./data/{self.filename}.npz")
+        if self.filename == None:
+            return
+
+        np.savez("./data/" + self.filename, W1=self.W1, b1=self.b1, 
+                 W2=self.W2, b2=self.b2, W3=self.W3, b3=self.b3,
+                 last_iteration=self.current_iteration)
+
+        if self.debug == True:
+            print(f"Model saved to ./data/{self.filename}.npz")
 
     def relu(self, x):
         return np.maximum(0, x)
@@ -101,6 +114,9 @@ class NeuralNetwork:
 
     def get_mse(self, predictions, actual):
         return np.mean((predictions - actual) ** 2)
+    
+    def get_msa(self, predictions, actual):
+        return np.mean((predictions * actual) ** 2)
 
     def train(self, X, Y, alpha, iterations, sheet=None):
         self.alpha = alpha
@@ -119,6 +135,82 @@ class NeuralNetwork:
                     sheet.append([i, mse])
 
         self.save_data()
+
+    def train_multiple(self, X, Y, alpha, iterations, excel_filename="training_data.xlsx", start_col=1):
+        """
+        Trains the neural network for multiple runs and saves metrics to Excel.
+
+        Parameters:
+            X (numpy array): Input data.
+            Y (numpy array): True labels.
+            alpha (float): Learning rate for gradient descent.
+            iterations (int): Number of training iterations.
+            excel_filename (str): Name of the Excel file to save metrics.
+            start_col (int): Column number where the training output should begin.
+
+        Returns:
+            None
+        """
+        self.alpha = alpha
+        self.iterations = iterations
+
+        # load / create excel file
+        if os.path.exists(excel_filename):
+            workbook = load_workbook(excel_filename)
+            sheet = workbook.active
+        else:
+            workbook = Workbook()
+            sheet = workbook.active
+
+        # metadata init
+        if sheet.cell(row=1, column=start_col).value is None:
+            sheet.cell(row=1, column=start_col, value="Layer 1")
+            sheet.cell(row=1, column=start_col + 1, value="Layer 2")
+            sheet.cell(row=1, column=start_col + 2, value="Alpha")
+            sheet.cell(row=2, column=start_col, value=self.hidden_size1)
+            sheet.cell(row=2, column=start_col + 1, value=self.hidden_size2)
+            sheet.cell(row=2, column=start_col + 2, value=alpha)
+            sheet.cell(row=4, column=start_col, value="Iteration")
+            sheet.cell(row=4, column=start_col + 1, value="MSE")
+            # sheet.cell(row=4, column=start_col + 2, value="MSA")
+
+        # get last iter from .npz file
+        self.current_iteration = self.start_iteration
+        iteration_number = 0
+
+        # where to write values, last non empty cell in column
+        row_to_write = 5
+        while sheet.cell(row=row_to_write, column=start_col).value is not None:
+            row_to_write += 1
+
+        for i in range(1, iterations):
+            iteration_number = self.current_iteration + i
+
+            Z1, A1, Z2, A2, Z3 = self.forward_prop(X)
+            dW1, db1, dW2, db2, dW3, db3 = self.backward_prop(Z1, A1, Z2, A2, Z3, X, Y)
+
+            # update weights
+            self.update_params(dW1, db1, dW2, db2, dW3, db3)
+
+            # calculate MSE
+            mse = self.get_mse(Z3, Y)
+            # msa = self.get_msa(Z3, Y)
+
+            # save metrics
+            if i % self.iters_check == 0:
+                sheet.cell(row=row_to_write, column=start_col, value=self.current_iteration + i)
+                sheet.cell(row=row_to_write, column=start_col + 1, value=mse)
+                # sheet.cell(row=row_to_write, column=start_col + 2, value=msa)
+
+                # print(f"Iteration {iteration_number}: MSE {mse:.6f}")
+                row_to_write += 1
+
+        # save excel file
+        self.current_iteration = iteration_number
+        workbook.save(excel_filename)
+
+        # print(f"Training metrics appended to {excel_filename}.")
+
 
     def predict(self, X):
         _, _, _, _, Z3 = self.forward_prop(X)
