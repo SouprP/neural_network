@@ -72,75 +72,14 @@ y_train_ackley = ackley_function(x_train_ackley[0, :], x_train_ackley[1, :]).res
 x_test_ackley = np.random.uniform(-2, 2, (INPUT_SIZE_ACKLEY, 5000))
 y_test_ackley = ackley_function(x_test_ackley[0, :], x_test_ackley[1, :]).reshape(1, -1)
 
-def process_mnist_sigmoid():
-    offset = 15
-    iter = 0
-    for a in range(len(ALPHA_ARRAY)):
-        for x in range(len(HIDDEN_ARRAY_1)):
-            for y in range(len(HIDDEN_ARRAY_2)):
-                network = NeuralNetworkMnist(
-                    INPUT_SIZE_MNIST, HIDDEN_ARRAY_1[x], HIDDEN_ARRAY_2[y], OUTPUT_SIZE_MNIST,
-                    activation_function=SIGMOID,
-                    filename=f"{ALPHA_ARRAY[a]}_{HIDDEN_ARRAY_1[x]}_{HIDDEN_ARRAY_2[y]}_sigmoid_mnist",
-                    iters_check=1
-                )
-                print(f"SIGMOID MNIST Iteration: {iter}")
-                network.train_multiple(
-                    x_train, y_train, ALPHA_ARRAY[a], ITERATIONS,
-                    excel_filename="mnist_sigmoid_excel.xlsx",
-                    start_col=iter * 4 + 1 + offset
-                )
-                network.save_data()
-                iter += 1
-
-def process_relu_ackley():
-    offset = 15
-    iter = 0
-    for a in range(len(ALPHA_ARRAY)):
-        for x in range(len(HIDDEN_ARRAY_1)):
-            for y in range(len(HIDDEN_ARRAY_2)):
-                network = NeuralNetworkAckley(
-                    INPUT_SIZE_ACKLEY, HIDDEN_ARRAY_1[x], HIDDEN_ARRAY_2[y], OUTPUT_SIZE_ACKLEY,
-                    activation_function=RELU,
-                    filename=f"{ALPHA_ARRAY[a]}_{HIDDEN_ARRAY_1[x]}_{HIDDEN_ARRAY_2[y]}_relu_ackley",
-                    iters_check=1
-                )
-                print(f"RELU ACKLEY Iteration: {iter}")
-                network.train_multiple(
-                    x_train_ackley, y_train_ackley, ALPHA_ARRAY[a], ITERATIONS,
-                    excel_filename="ackley_relu_excel.xlsx",
-                    start_col=iter * 4 + 1 + offset
-                )
-                network.save_data()
-                iter += 1
-
-def process_sigmoid_ackley():
-    offset = 15
-    iter = 0
-    for a in range(len(ALPHA_ARRAY)):
-        for x in range(len(HIDDEN_ARRAY_1)):
-            for y in range(len(HIDDEN_ARRAY_2)):
-                network = NeuralNetworkAckley(
-                    INPUT_SIZE_ACKLEY, HIDDEN_ARRAY_1[x], HIDDEN_ARRAY_2[y], OUTPUT_SIZE_ACKLEY,
-                    activation_function=SIGMOID,
-                    filename=f"{ALPHA_ARRAY[a]}_{HIDDEN_ARRAY_1[x]}_{HIDDEN_ARRAY_2[y]}_sigmoid_ackley",
-                    iters_check=1
-                )
-                print(f"SIGMOID ACKLEY Iteration: {iter}")
-                network.train_multiple(
-                    x_train_ackley, y_train_ackley, ALPHA_ARRAY[a], ITERATIONS,
-                    excel_filename="ackley_sigmoid_excel.xlsx",
-                    start_col=iter * 4 + 1 + offset
-                )
-                network.save_data()
-                iter += 1
 
 def ackley_function(x1, x2):
     return -20 * np.exp(-0.2 * np.sqrt(0.5 * (x1**2 + x2**2))) - \
         np.exp(0.5 * (np.cos(2 * np.pi * x1) + np.cos(2 * np.pi * x2))) + np.e + 20
 
 def test_prediction(x_test, y_test, network: NeuralNetworkMnist):
-    index = np.random.randint(0, x_test.shape[1] - 1)
+    # index = np.random.randint(0, x_test.shape[1] - 1)
+    index = 102
 
     image = x_test[:, index, None]
     label = y_test[index]
@@ -169,94 +108,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
     activation_function = args.activation
 
-    # def process_mnist_sigmoid():
-    #     offset = 15
-    #     iter = 0
-    #     for a in range(len(ALPHA_ARRAY)):
-    #         for x in range(len(HIDDEN_ARRAY_1)):
-    #             for y in range(len(HIDDEN_ARRAY_2)):
-    #                 network = NeuralNetworkMnist(
-    #                     INPUT_SIZE_MNIST, HIDDEN_ARRAY_1[x], HIDDEN_ARRAY_2[y], OUTPUT_SIZE_MNIST,
-    #                     activation_function=SIGMOID,
-    #                     filename=f"{ALPHA_ARRAY[a]}_{HIDDEN_ARRAY_1[x]}_{HIDDEN_ARRAY_2[y]}_sigmoid_mnist",
-    #                     iters_check=1
-    #                 )
-    #                 print(f"SIGMOID MNIST Iteration: {iter}")
-    #                 network.train_multiple(
-    #                     x_train, y_train, ALPHA_ARRAY[a], ITERATIONS,
-    #                     excel_filename="mnist_sigmoid_excel.xlsx",
-    #                     start_col=iter * 4 + 1 + offset
-    #                 )
-    #                 network.save_data()
-    #                 iter += 1
-
-    # def process_relu_ackley():
-    #     offset = 15
-    #     iter = 0
-    #     for a in range(len(ALPHA_ARRAY)):
-    #         for x in range(len(HIDDEN_ARRAY_1)):
-    #             for y in range(len(HIDDEN_ARRAY_2)):
-    #                 network = NeuralNetworkAckley(
-    #                     INPUT_SIZE_ACKLEY, HIDDEN_ARRAY_1[x], HIDDEN_ARRAY_2[y], OUTPUT_SIZE_ACKLEY,
-    #                     activation_function=RELU,
-    #                     filename=f"{ALPHA_ARRAY[a]}_{HIDDEN_ARRAY_1[x]}_{HIDDEN_ARRAY_2[y]}_relu_ackley",
-    #                     iters_check=1
-    #                 )
-    #                 print(f"RELU ACKLEY Iteration: {iter}")
-    #                 network.train_multiple(
-    #                     x_train_ackley, y_train_ackley, ALPHA_ARRAY[a], ITERATIONS,
-    #                     excel_filename="ackley_relu_excel.xlsx",
-    #                     start_col=iter * 4 + 1 + offset
-    #                 )
-    #                 network.save_data()
-    #                 iter += 1
-
-    # def process_sigmoid_ackley():
-    #     offset = 15
-    #     iter = 0
-    #     for a in range(len(ALPHA_ARRAY)):
-    #         for x in range(len(HIDDEN_ARRAY_1)):
-    #             for y in range(len(HIDDEN_ARRAY_2)):
-    #                 network = NeuralNetworkAckley(
-    #                     INPUT_SIZE_ACKLEY, HIDDEN_ARRAY_1[x], HIDDEN_ARRAY_2[y], OUTPUT_SIZE_ACKLEY,
-    #                     activation_function=SIGMOID,
-    #                     filename=f"{ALPHA_ARRAY[a]}_{HIDDEN_ARRAY_1[x]}_{HIDDEN_ARRAY_2[y]}_sigmoid_ackley",
-    #                     iters_check=1
-    #                 )
-    #                 print(f"SIGMOID ACKLEY Iteration: {iter}")
-    #                 network.train_multiple(
-    #                     x_train_ackley, y_train_ackley, ALPHA_ARRAY[a], ITERATIONS,
-    #                     excel_filename="ackley_sigmoid_excel.xlsx",
-    #                     start_col=iter * 4 + 1 + offset
-    #                 )
-    #                 network.save_data()
-    #                 iter += 1
 
 
-    s_mnist = multiprocessing.Process(target=process_mnist_sigmoid)
-    r_ackley = multiprocessing.Process(target=process_relu_ackley)
-    s_ackley = multiprocessing.Process(target=process_sigmoid_ackley)
+    # network = NeuralNetworkMnist(INPUT_SIZE_MNIST, HIDDEN_SIZE1, HIDDEN_ARRAY_2, OUTPUT_SIZE_MNIST, RELU
+    #                              ,"0.1_256_256_relu_mnist" , False, 1)
 
-    s_mnist.start()
-    r_ackley.start()
-    s_ackley.start()
+    network = NeuralNetworkMnist(INPUT_SIZE_MNIST, HIDDEN_SIZE1, HIDDEN_ARRAY_2, OUTPUT_SIZE_MNIST, SIGMOID
+                                 ,"0.1_256_256_sigmoid_mnist" , False, 1)
 
-    s_mnist.join()
-    r_ackley.join()
-    s_ackley.join()
+    # test_prediction(x_test, y_test, network)
 
-    print("ENDED")
-
-    # ACKLEY DATA
-    # x_train = np.random.uniform(-2, 2, (INPUT_SIZE, 20000))
-    # y_train = ackley_function(x_train[0, :], x_train[1, :]).reshape(1, -1)
-    # x_test = np.random.uniform(-2, 2, (INPUT_SIZE, 5000))
-    # y_test = ackley_function(x_test[0, :], x_test[1, :]).reshape(1, -1)
-
-
-    # root = tk.Tk()
-    # app = PaintApp(root, network)
-    # root.mainloop()
+    root = tk.Tk()
+    app = PaintApp(root, network)
+    root.mainloop()
 
 
     if False:

@@ -6,19 +6,25 @@ from openpyxl import Workbook
 
 # Parametry sieci
 INPUT_SIZE = 2
-HIDDEN_SIZE1 = 128
+
+ALPHA = 0.1
+HIDDEN_SIZE1 = 256
 HIDDEN_SIZE2 = 64
+
 OUTPUT_SIZE = 1
-ALPHA = 0.01
-ITERATIONS = 80
-DEBUG = True
-ITERS_CHECK = 10
+ITERATIONS = 5000 + 1
+DEBUG = False
+ITERS_CHECK = 1
+
+RELU = "relu"
+SIGMOID = "sigmoid"
+activ = SIGMOID
 
 # Tworzenie skoroszytu Excel
-workbook = Workbook()
-sheet = workbook.active
-sheet.title = "Ackley Results"
-sheet.append(["Iteration", "MSE", ])
+# workbook = Workbook()
+# sheet = workbook.active
+# sheet.title = "Ackley Results"
+# sheet.append(["Iteration", "MSE", ])
 
 # Funkcja Ackleya
 def ackley_function(x1, x2):
@@ -44,17 +50,26 @@ if __name__ == "__main__":
     x_test = np.random.uniform(-2, 2, (INPUT_SIZE, 5000))
     y_test = ackley_function(x_test[0, :], x_test[1, :]).reshape(1, -1)
 
+    offset = 15
 
-    network = NeuralNetworkAckley(INPUT_SIZE, HIDDEN_SIZE1, HIDDEN_SIZE2, OUTPUT_SIZE, activation_function=args.activation, filename="ackley_relu_2k_0.01", debug=DEBUG, iters_check=ITERS_CHECK)
-    network.train(x_train, y_train, alpha=ALPHA, iterations=ITERATIONS, sheet=sheet)
+
+    network = NeuralNetworkAckley(INPUT_SIZE, HIDDEN_SIZE1, HIDDEN_SIZE2, OUTPUT_SIZE, 
+        activation_function=activ, filename="0.05_64_256_relu_ackley", debug=DEBUG, iters_check=ITERS_CHECK)
+    # network.train(x_train, y_train, alpha=ALPHA, iterations=ITERATIONS, sheet=sheet)
+    # network.train_multiple(x_train, y_train, ALPHA, ITERATIONS, 
+    #         excel_filename=f"end/{ALPHA}_{HIDDEN_SIZE1}_{HIDDEN_SIZE2}_{activ}_ackley_excel.xlsx",
+    #         start_col=1 + offset
+    #         )
+    
+    # network.save_data()
 
     grid, X, Y = generate_grid(-2, 2, 0.01)
     predictions = network.predict(grid.T).reshape(X.shape)
     actual = ackley_function(X, Y)
 
     mse = network.get_mse(predictions, actual)
-    print(f"Train MSE: {mse:.4f}")
-    sheet.append(["Train", mse])
+    # print(f"Train MSE: {mse:.4f}")
+    # sheet.append(["Train", mse])
 
     # Wizualizacja wyników
     plt.figure(figsize=(12,8))
@@ -62,7 +77,7 @@ if __name__ == "__main__":
     plt.colorbar(label='Function actual Value')
     plt.contour(X, Y, predictions, levels=40, cmap='cool', alpha=0.3)
     plt.colorbar(label='Value')
-    plt.title("Ackley Function Approximation - train")
+    plt.title("Ackley Approximation - train")
     plt.show()
 
     # Wykres 3D rzeczywistej funkcji Ackleya
@@ -84,14 +99,14 @@ if __name__ == "__main__":
     plt.show()
 
     # Wykres MSE w czasie iteracji
-    network.plot_mse()
+    # network.plot_mse()
 
     predictions_test = network.predict(x_test)
     mse_test = network.get_mse(predictions_test, y_test)
     print(f"Test MSE: {mse_test:.4f}")
-    sheet.append(["Test", mse_test])
-    workbook.save("ackley_results1.xlsx")
-    print("Wyniki zapisane do pliku ackley_results.xlsx")
+    # sheet.append(["Test", mse_test])
+    # workbook.save("ackley_results1.xlsx")
+    # print("Wyniki zapisane do pliku ackley_results.xlsx")
 
     # Generowanie siatki dla wizualizacji
     grid, X_test, Y_test = generate_grid(-2, 2, 0.01)

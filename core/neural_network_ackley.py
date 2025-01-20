@@ -122,7 +122,10 @@ class NeuralNetworkAckley:
         self.alpha = alpha
         self.iterations = iterations
 
+        self.current_iteration = self.start_iteration
         for i in range(iterations):
+            iteration_number = self.current_iteration + i
+
             Z1, A1, Z2, A2, Z3 = self.forward_prop(X)
             dW1, db1, dW2, db2, dW3, db3 = self.backward_prop(Z1, A1, Z2, A2, Z3, X, Y)
             self.update_params(dW1, db1, dW2, db2, dW3, db3)
@@ -130,9 +133,11 @@ class NeuralNetworkAckley:
             if i % self.iters_check == 0:
                 mse = self.get_mse(Z3, Y)
                 self.mse_history.append((i, mse))
-                print(f"Iteration {i}: MSE {mse:.4f}")
+                print(f"Iteration {iteration_number}: MSE {mse:.4f}")
                 if sheet:
                     sheet.append([i, mse])
+
+        self.current_iteration = iteration_number
 
         self.save_data()
 
@@ -202,7 +207,7 @@ class NeuralNetworkAckley:
                 sheet.cell(row=row_to_write, column=start_col + 1, value=mse)
                 # sheet.cell(row=row_to_write, column=start_col + 2, value=msa)
 
-                # print(f"Iteration {iteration_number}: MSE {mse:.6f}")
+                print(f"Iteration {iteration_number}: MSE {mse:.6f}")
                 row_to_write += 1
 
         # save excel file

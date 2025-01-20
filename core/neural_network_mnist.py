@@ -352,7 +352,7 @@ class NeuralNetworkMnist:
                 sheet.cell(row=row_to_write, column=start_col + 2, value=mse)
                 # sheet.cell(row=row_to_write, column=start_col + 3, value=msa)
 
-                # print(f"Iteration {iteration_number}: Accuracy {accuracy:.4f}, MSE {mse:.6f}")
+                print(f"Iteration {iteration_number}: Accuracy {accuracy:.4f}, MSE {mse:.6f}")
 
                 self.accuracy_data = np.append(self.accuracy_data, [[iteration_number, accuracy]], axis=0)
 
